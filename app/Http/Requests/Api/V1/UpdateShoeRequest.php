@@ -15,7 +15,7 @@ class UpdateShoeRequest extends BaseShoeRequest
     }
 
     /**
-     * Validation rules for updating a shoe.
+     * Validation rules for updating a shoe (deny by default).
      */
     public function rules(): array
     {
@@ -23,12 +23,13 @@ class UpdateShoeRequest extends BaseShoeRequest
             'data.attributes.shoe' => 'sometimes|string',
             'data.attributes.description' => 'sometimes|string',
             'data.attributes.status' => 'sometimes|string|in:A,C,H,X',
-            'data.relationships.user.data.id' => 'sometimes|integer|exists:users,id',
+            // Default: nobody may change the author
+            'data.relationships.user.data.id' => 'prohibited',
         ];
 
-        // Users who may only update their own shoes cannot change the author
-        if ($this->user()->tokenCan(Abilities::UpdateOwnShoe)) {
-            $rules['data.relationships.user.data.id'] = 'prohibited';
+        // Only the broad ability lifts the restriction (managers)
+        if ($this->user()->tokenCan(Abilities::UpdateShoe)) {
+            $rules['data.relationships.user.data.id'] = 'sometimes|integer|exists:users,id';
         }
 
         return $rules;
