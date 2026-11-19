@@ -48,4 +48,15 @@ class ShoeController extends APIController
             Shoe::create($request->mappedAttributes())
         );
     }
+
+    /**
+     * DELETE /api/v1/shoes/{shoe}
+     * Deletes the shoe. A missing shoe never reaches this method: Laravel answers 404.
+     */
+    public function destroy(Shoe $shoe)
+    {
+        $shoe->delete();
+
+        return $this->ok('Shoe successfully deleted');
+    }
 }
