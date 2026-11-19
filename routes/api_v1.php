@@ -22,6 +22,8 @@ Route::middleware('auth:api')->group(function () {
 
     // GET /shoes (list) and GET /shoes/{shoe} (one shoe)
     Route::apiResource('shoes', ShoeController::class)->only(['index', 'show', 'store', 'destroy']);
+    // PUT replaces the whole shoe (our own method name: replace)
+    Route::put('shoes/{shoe}', [ShoeController::class, 'replace']);
 
     // Authors are read only: list and show
     Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);

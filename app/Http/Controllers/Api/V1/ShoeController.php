@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Filters\V1\ShoeFilter;
+use App\Http\Requests\Api\V1\ReplaceShoeRequest;
 use App\Http\Requests\Api\V1\StoreShoeRequest;
 use App\Http\Resources\V1\ShoeResource;
 use App\Models\Shoe;
@@ -58,5 +59,16 @@ class ShoeController extends APIController
         $shoe->delete();
 
         return $this->ok('Shoe successfully deleted');
+    }
+
+    /**
+     * PUT /api/v1/shoes/{shoe}
+     * Replaces the whole shoe: every field must be sent (see ReplaceShoeRequest).
+     */
+    public function replace(ReplaceShoeRequest $request, Shoe $shoe)
+    {
+        $shoe->update($request->mappedAttributes());
+
+        return new ShoeResource($shoe);
     }
 }
