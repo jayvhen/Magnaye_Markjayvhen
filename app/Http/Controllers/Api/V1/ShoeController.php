@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Filters\V1\ShoeFilter;
+use App\Http\Requests\Api\V1\StoreShoeRequest;
 use App\Http\Resources\V1\ShoeResource;
 use App\Models\Shoe;
 
@@ -33,5 +34,18 @@ class ShoeController extends APIController
         }
 
         return new ShoeResource($shoe);
+    }
+
+    /**
+     * POST /api/v1/shoes
+     * Validates the body with StoreShoeRequest, then creates the shoe.
+     * Laravel answers 201 Created automatically for a newly created resource.
+     */
+    public function store(StoreShoeRequest $request)
+    {
+        // mappedAttributes() converts the nested JSON into database columns
+        return new ShoeResource(
+            Shoe::create($request->mappedAttributes())
+        );
     }
 }

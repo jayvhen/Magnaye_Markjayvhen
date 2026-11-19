@@ -21,7 +21,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     // GET /shoes (list) and GET /shoes/{shoe} (one shoe)
-    Route::apiResource('shoes', ShoeController::class)->only(['index', 'show']);
+    Route::apiResource('shoes', ShoeController::class)->only(['index', 'show', 'store']);
 
     // Authors are read only: list and show
     Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
