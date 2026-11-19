@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Permissions\V1\Abilities;
+
 /**
  * Validates the body of POST /shoes and POST /users/{user}/shoes.
  */
@@ -27,7 +29,7 @@ class StoreShoeRequest extends BaseShoeRequest
             ? 'data.relationships.user.data.id'
             : 'user';
 
-        return [
+        $rules = [
             'data' => 'required|array',
             'data.attributes' => 'required|array',
             'data.attributes.shoe' => 'required|string',
@@ -35,6 +37,16 @@ class StoreShoeRequest extends BaseShoeRequest
             'data.attributes.status' => 'required|string|in:A,C,H,X',
             $userIdAttr => 'required|integer|exists:users,id',
         ];
+
+        // A user who may only create their own shoes must be the author:
+        // size:5 means the id must equal 5, the logged-in user's id.
+        $user = $this->user();
+
+        if ($user->tokenCan(Abilities::CreateOwnShoe)) {
+            $rules[$userIdAttr] .= '|size:'.$user->id;
+        }
+
+        return $rules;
     }
 
     /**
