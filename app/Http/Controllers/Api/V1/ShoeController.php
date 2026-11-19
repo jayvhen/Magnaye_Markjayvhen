@@ -75,13 +75,17 @@ class ShoeController extends APIController
 
     /**
      * PATCH /api/v1/shoes/{shoe}
-     * Updates only the fields that were sent (see UpdateShoeRequest).
+     * Updates only the fields that were sent, but only if the policy allows it.
      */
     public function update(UpdateShoeRequest $request, Shoe $shoe)
     {
-        // mappedAttributes() returns only the keys present in the request
-        $shoe->update($request->mappedAttributes());
+        // Ask ShoePolicy::update() (owner, or a user holding the broader ability)
+        if ($this->isAble('update', $shoe)) {
+            $shoe->update($request->mappedAttributes());
 
-        return new ShoeResource($shoe);
+            return new ShoeResource($shoe);
+        }
+
+        return $this->notAuthorized('You are not authorized to update that resource.');
     }
 }
