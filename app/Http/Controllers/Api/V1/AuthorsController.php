@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Filters\V1\AuthorFilter;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
 
@@ -14,14 +15,12 @@ class AuthorsController extends APIController
      * GET /api/v1/authors
      * Lists only users who own at least one shoe, 15 per page.
      */
-    public function index()
+    public function index(AuthorFilter $filters)
     {
-        // ?include=shoes: load each author's shoes in one extra query
-        if ($this->include('shoes')) {
-            return UserResource::collection(User::has('shoes')->with('shoes')->paginate());
-        }
-
-        return UserResource::collection(User::has('shoes')->paginate());
+        // Authors only, with the filters and sorting from the URL applied
+        return UserResource::collection(
+            User::has('shoes')->filter($filters)->paginate()
+        );
     }
 
     /**

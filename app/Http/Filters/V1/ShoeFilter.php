@@ -7,6 +7,14 @@ namespace App\Http\Filters\V1;
  */
 class ShoeFilter extends QueryFilter
 {
+    // The columns clients may sort shoes by
+    protected array $sortable = [
+        'shoe',
+        'status',
+        'createdAt' => 'created_at',
+        'updatedAt' => 'updated_at',
+    ];
+
     /**
      * ?createdAt=2026-08-19              one day
      * ?createdAt=2026-08-01,2026-08-31   a date range (from,to)
