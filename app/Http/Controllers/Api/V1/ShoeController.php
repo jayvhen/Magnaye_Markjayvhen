@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Filters\V1\ShoeFilter;
 use App\Http\Requests\Api\V1\ReplaceShoeRequest;
 use App\Http\Requests\Api\V1\StoreShoeRequest;
+use App\Http\Requests\Api\V1\UpdateShoeRequest;
 use App\Http\Resources\V1\ShoeResource;
 use App\Models\Shoe;
 
@@ -67,6 +68,18 @@ class ShoeController extends APIController
      */
     public function replace(ReplaceShoeRequest $request, Shoe $shoe)
     {
+        $shoe->update($request->mappedAttributes());
+
+        return new ShoeResource($shoe);
+    }
+
+    /**
+     * PATCH /api/v1/shoes/{shoe}
+     * Updates only the fields that were sent (see UpdateShoeRequest).
+     */
+    public function update(UpdateShoeRequest $request, Shoe $shoe)
+    {
+        // mappedAttributes() returns only the keys present in the request
         $shoe->update($request->mappedAttributes());
 
         return new ShoeResource($shoe);
