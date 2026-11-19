@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\AuthorsController;
 use App\Http\Controllers\Api\V1\ShoeController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,4 +21,7 @@ Route::middleware('auth:api')->group(function () {
 
     // GET /shoes (list) and GET /shoes/{shoe} (one shoe)
     Route::apiResource('shoes', ShoeController::class)->only(['index', 'show']);
+
+    // Authors are read only: list and show
+    Route::apiResource('authors', AuthorsController::class)->only(['index', 'show']);
 });

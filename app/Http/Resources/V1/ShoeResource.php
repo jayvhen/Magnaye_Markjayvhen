@@ -22,7 +22,11 @@ class ShoeResource extends JsonResource
             // The shoe's own fields, renamed to camelCase for the client
             'attributes' => [
                 'shoe' => $this->shoe,
-                'description' => $this->description,
+                // Shown on the detail page only: hidden on the list endpoints
+                'description' => $this->when(
+                    ! $request->routeIs(['shoes.index', 'users.shoes.index']),
+                    $this->description
+                ),
                 'status' => $this->status,
                 'createdAt' => $this->created_at,
                 'updatedAt' => $this->updated_at,
@@ -33,6 +37,10 @@ class ShoeResource extends JsonResource
                     'data' => [
                         'type' => 'user',
                         'id' => $this->user_id,
+                    ],
+                    // Link to the author's own endpoint
+                    'links' => [
+                        'self' => route('authors.show', ['author' => $this->user_id]),
                     ],
                 ],
             ],
