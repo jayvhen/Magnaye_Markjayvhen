@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\ShoeResource;
 use App\Models\Shoe;
 
-class ShoeController extends Controller
+class ShoeController extends APIController
 {
     /**
      * GET /api/v1/shoes
@@ -14,6 +13,11 @@ class ShoeController extends Controller
      */
     public function index()
     {
+        // ?include=author: eager load the authors in one extra query
+        if ($this->include('author')) {
+            return ShoeResource::collection(Shoe::with('author')->paginate());
+        }
+
         return ShoeResource::collection(Shoe::paginate());
     }
 
@@ -24,6 +28,11 @@ class ShoeController extends Controller
      */
     public function show(Shoe $shoe)
     {
+        // ?include=author: load the author of this shoe
+        if ($this->include('author')) {
+            return new ShoeResource($shoe->load('author'));
+        }
+
         return new ShoeResource($shoe);
     }
 }

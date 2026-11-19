@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
 
 /**
  * Read-only view of the users who have written shoes (the "authors").
  */
-class AuthorsController extends Controller
+class AuthorsController extends APIController
 {
     /**
      * GET /api/v1/authors
@@ -17,6 +16,11 @@ class AuthorsController extends Controller
      */
     public function index()
     {
+        // ?include=shoes: load each author's shoes in one extra query
+        if ($this->include('shoes')) {
+            return UserResource::collection(User::has('shoes')->with('shoes')->paginate());
+        }
+
         return UserResource::collection(User::has('shoes')->paginate());
     }
 
@@ -26,6 +30,11 @@ class AuthorsController extends Controller
      */
     public function show(User $author)
     {
+        // ?include=shoes: load this author's shoes
+        if ($this->include('shoes')) {
+            return new UserResource($author->load('shoes'));
+        }
+
         return new UserResource($author);
     }
 }

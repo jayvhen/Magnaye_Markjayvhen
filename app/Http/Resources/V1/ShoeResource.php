@@ -44,6 +44,8 @@ class ShoeResource extends JsonResource
                     ],
                 ],
             ],
+            // The author object, present only when requested with ?include=author
+            'includes' => new UserResource($this->whenLoaded('author')),
             // Link to this shoe
             'links' => [
                 'self' => route('shoes.show', ['shoe' => $this->id]),

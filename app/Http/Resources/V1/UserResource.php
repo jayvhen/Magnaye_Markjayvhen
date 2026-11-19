@@ -25,6 +25,8 @@ class UserResource extends JsonResource
                     'updatedAt' => $this->updated_at,
                 ]),
             ],
+            // The shoes array, present only when requested with ?include=shoes
+            'includes' => ShoeResource::collection($this->whenLoaded('shoes')),
             // Link to this user
             'links' => [
                 'self' => route('authors.show', ['author' => $this->id]),
