@@ -40,37 +40,48 @@ class ShoeController extends APIController
 
     /**
      * POST /api/v1/shoes
-     * Validates the body with StoreShoeRequest, then creates the shoe.
-     * Laravel answers 201 Created automatically for a newly created resource.
+     * Creates a shoe, but only if the policy allows this user to do so.
      */
     public function store(StoreShoeRequest $request)
     {
-        // mappedAttributes() converts the nested JSON into database columns
-        return new ShoeResource(
-            Shoe::create($request->mappedAttributes())
-        );
+        // Ask ShoePolicy::store() (checks the ability stored in the token)
+        if ($this->isAble('store', Shoe::class)) {
+            return new ShoeResource(
+                Shoe::create($request->mappedAttributes())
+            );
+        }
+
+        return $this->notAuthorized('You are not authorized to create that resource.');
     }
 
     /**
      * DELETE /api/v1/shoes/{shoe}
-     * Deletes the shoe. A missing shoe never reaches this method: Laravel answers 404.
+     * Deletes the shoe, but only if the policy allows it.
      */
     public function destroy(Shoe $shoe)
     {
-        $shoe->delete();
+        if ($this->isAble('delete', $shoe)) {
+            $shoe->delete();
 
-        return $this->ok('Shoe successfully deleted');
+            return $this->ok('Shoe successfully deleted');
+        }
+
+        return $this->notAuthorized('You are not authorized to delete that resource.');
     }
 
     /**
      * PUT /api/v1/shoes/{shoe}
-     * Replaces the whole shoe: every field must be sent (see ReplaceShoeRequest).
+     * Replaces the whole shoe, but only if the policy allows it.
      */
     public function replace(ReplaceShoeRequest $request, Shoe $shoe)
     {
-        $shoe->update($request->mappedAttributes());
+        if ($this->isAble('replace', $shoe)) {
+            $shoe->update($request->mappedAttributes());
 
-        return new ShoeResource($shoe);
+            return new ShoeResource($shoe);
+        }
+
+        return $this->notAuthorized('You are not authorized to replace that resource.');
     }
 
     /**

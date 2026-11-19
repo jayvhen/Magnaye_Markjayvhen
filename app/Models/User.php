@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Http\Filters\V1\QueryFilter;
+use App\Permissions\V1\Abilities;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -14,7 +15,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'is_manager'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements JWTSubject
 {
@@ -31,6 +32,8 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // Returns true/false instead of 1/0
+            'is_manager' => 'boolean',
         ];
     }
 
@@ -51,12 +54,14 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Extra data stored in the token payload. Empty for now;
-     * Step 20 adds the user's abilities here.
+     * Extra data stored in the token payload: the user's abilities.
+     * They are written into the JWT every time the user logs in.
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'abilities' => Abilities::getAbilities($this),
+        ];
     }
 
     /**
@@ -65,5 +70,22 @@ class User extends Authenticatable implements JWTSubject
     public function scopeFilter(Builder $builder, QueryFilter $filters): Builder
     {
         return $filters->apply($builder);
+    }
+
+    /**
+     * Checks an ability stored in the current JWT, for example 'shoe:update'.
+     * Sanctum's own tokenCan() does not read JWT claims, so we implement it here.
+     */
+    public function tokenCan(string $ability): bool
+    {
+        try {
+            // Read the "abilities" claim of the token sent with this request
+            $abilities = auth('api')->payload()->get('abilities') ?? [];
+        } catch (\Throwable $e) {
+            // No token, or an unreadable one: no abilities
+            return false;
+        }
+
+        return in_array($ability, $abilities, true);
     }
 }
