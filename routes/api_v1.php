@@ -18,5 +18,6 @@ Route::middleware('auth:api')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
-    Route::apiResource('shoes', ShoeController::class)->only(['index']);
+    // GET /shoes (list) and GET /shoes/{shoe} (one shoe)
+    Route::apiResource('shoes', ShoeController::class)->only(['index', 'show']);
 });
