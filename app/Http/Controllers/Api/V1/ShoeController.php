@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Filters\V1\ShoeFilter;
 use App\Http\Resources\V1\ShoeResource;
 use App\Models\Shoe;
 
@@ -11,14 +12,12 @@ class ShoeController extends APIController
      * GET /api/v1/shoes
      * Returns a paginated list (15 per page). Each shoe is transformed by ShoeResource.
      */
-    public function index()
+    public function index(ShoeFilter $filters)
     {
-        // ?include=author: eager load the authors in one extra query
-        if ($this->include('author')) {
-            return ShoeResource::collection(Shoe::with('author')->paginate());
-        }
-
-        return ShoeResource::collection(Shoe::paginate());
+        // Apply the filters from the URL (?status=A, ?shoe=*x*, ?include=author ...)
+        return ShoeResource::collection(
+            Shoe::filter($filters)->paginate()
+        );
     }
 
     /**
